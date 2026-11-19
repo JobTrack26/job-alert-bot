@@ -75,12 +75,13 @@ def serper_search(query, page=1):
     r = requests.post(
         "https://google.serper.dev/search",
         headers={"X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json"},
-        json={"q": query, "num": 20, "page": page},
+        json={"q": query, "num": 10, "page": page},
         timeout=20,
     )
-    r.raise_for_status()
+    if r.status_code != 200:
+        print(f"Serper error {r.status_code} for query [{query}]: {r.text}")
+        r.raise_for_status()
     return r.json().get("organic", [])
-
 
 def main():
     boards = load_json(BOARDS_FILE, SEED_BOARDS)
