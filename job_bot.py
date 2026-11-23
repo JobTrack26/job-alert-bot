@@ -198,7 +198,7 @@ def send_jobs_email(alerts):
         return
 
     sender = "nimeshchandhra2005@gmail.com"
-    recipients = ["nc.nothingphone@gmail.com", "nimeshchandhra2005+jobs@gmail.com"]
+    recipients = "nimeshchandhra2005+jobs@gmail.com"
 
     lines = [
         f"{i}. [{src}] {title}\n   {url}"
