@@ -4,6 +4,9 @@ import json
 import os
 from pathlib import Path
 import requests
+from email.message import EmailMessage
+import smtplib
+
 
 TG_TOKEN = os.environ["TG_BOT_TOKEN"]
 TG_CHAT_ID = os.environ["TG_CHAT_ID"]
@@ -189,6 +192,28 @@ def send_telegram(text):
         timeout=20,
     ).raise_for_status()
 
+def send_jobs_email(alerts):
+    app_password = os.environ.get("GMAIL_APP_PASSWORD")
+    if not app_password or not alerts:
+        return
+
+    sender = "nimeshchandhra2005@gmail.com"
+    recipients = ["nc.nothingphone@gmail.com", "nimeshchandhra2005+jobs@gmail.com"]
+
+    lines = [
+        f"{i}. [{src}] {title}\n   {url}"
+        for i, (src, title, url) in enumerate(alerts, 1)
+    ]
+
+    msg = EmailMessage()
+    msg["Subject"] = "[Job Alert Bot] New Listings"
+    msg["From"] = sender
+    msg["To"] = ", ".join(recipients)
+    msg.set_content("\n\n".join(lines))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(sender, app_password)
+        smtp.send_message(msg)
 
 def main():
     seen = load_seen()
@@ -205,6 +230,7 @@ def main():
                 for src, title, url in chunk
             ]
             send_telegram("<b>New Job Alerts</b>\n\n" + "\n\n".join(lines))
+        send_jobs_email(alerts)
         save_seen(seen)
 
 
