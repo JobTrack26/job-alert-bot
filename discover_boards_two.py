@@ -7,18 +7,21 @@ SERPER_API_KEY = os.environ["SERPER_API_KEY"]
 BOARDS_FILE = "boards_two.json"
 
 QUERIES = [
-    ("workable", 'site:apply.workable.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("India" OR "Remote")'),
-    ("workable", 'site:apply.workable.com ("Founding Engineer" OR "Product Engineer" OR "Backend") ("Remote" OR "Bengaluru" OR "Hyderabad")'),
-    ("smartrecruiters", 'site:jobs.smartrecruiters.com ("AI Engineer" OR "Software Engineer" OR "ML Engineer") ("India" OR "Remote")'),
-    ("smartrecruiters", 'site:jobs.smartrecruiters.com ("Full Stack" OR "Backend" OR "Python") ("Bengaluru" OR "Hyderabad" OR "Remote")'),
-    ("rippling", 'site:ats.rippling.com ("AI Engineer" OR "Software Engineer" OR "Founding Engineer")'),
-    ("rippling", 'site:ats.rippling.com ("Full Stack" OR "Backend" OR "Product Engineer") ("Remote" OR "India")'),
-    ("recruitee", 'site:recruitee.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
-    ("recruitee", 'site:recruitee.com ("Backend" OR "Python" OR "Machine Learning") ("Remote" OR "APAC")'),
-    ("teamtailor", 'site:teamtailor.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
-    ("teamtailor", 'site:teamtailor.com ("Backend" OR "Product Engineer" OR "Python") ("Remote" OR "Global")'),
-    ("pinpoint", 'site:pinpointhq.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
-    ("breezy", 'site:breezy.hr ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
+    ("workable", 'site:apply.workable.com "AI Engineer" remote'),
+    ("workable", 'site:apply.workable.com "Software Engineer" India'),
+    ("workable", 'site:apply.workable.com "Full Stack" remote'),
+    ("smartrecruiters", 'site:jobs.smartrecruiters.com "AI Engineer" India'),
+    ("smartrecruiters", 'site:jobs.smartrecruiters.com "Software Engineer" Bengaluru'),
+    ("smartrecruiters", 'site:jobs.smartrecruiters.com "Backend Engineer" remote'),
+    ("rippling", 'site:ats.rippling.com "AI Engineer"'),
+    ("rippling", 'site:ats.rippling.com "Software Engineer" remote'),
+    ("rippling", 'site:ats.rippling.com "Founding Engineer"'),
+    ("recruitee", 'site:recruitee.com "AI Engineer" remote'),
+    ("recruitee", 'site:recruitee.com "Software Engineer" remote'),
+    ("teamtailor", 'site:teamtailor.com "Software Engineer" remote'),
+    ("teamtailor", 'site:teamtailor.com "AI Engineer" remote'),
+    ("pinpoint", 'site:pinpointhq.com "Software Engineer" remote'),
+    ("breezy", 'site:breezy.hr "Software Engineer" remote'),
 ]
 
 PATTERNS = {
@@ -58,10 +61,12 @@ def discover():
             r = requests.post(
                 "https://google.serper.dev/search",
                 headers=headers,
-                json={"q": query, "num": 20},
+                json={"q": query, "num": 10},
                 timeout=20,
             )
-            r.raise_for_status()
+            if r.status_code != 200:
+                print(f"Serper {r.status_code} for {ats} ({query}): {r.text}")
+                continue
             for item in r.json().get("organic", []):
                 link = item.get("link", "")
                 m = PATTERNS[ats].search(link)
