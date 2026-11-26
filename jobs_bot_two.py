@@ -7,9 +7,9 @@ import requests
 
 BOT_TOKEN = os.environ["BOT_TOKEN_TWO"]
 CHAT_ID = os.environ["CHAT_ID_TWO"]
-EMAIL_USER = "nc.nothingphone@gmail.com"
+EMAIL_USER = "nimeshchandhra2005@gmail.com"
 EMAIL_PASS = os.environ.get("GMAIL_APP_PASSWORD", "")
-EMAIL_TO = "nc.nothingphone@gmail.com"
+EMAIL_TO = "nimeshchandhra2005+jobs@gmail.com"
 
 BOARDS_FILE = "boards_two.json"
 SEEN_FILE = "seen_jobs_two.json"
