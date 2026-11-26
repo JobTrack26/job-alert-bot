@@ -1,6 +1,7 @@
 import json
 import os
 import smtplib
+import xml.etree.ElementTree as ET
 from email.mime.text import MIMEText
 import requests
 
@@ -118,6 +119,97 @@ def fetch_rippling(slug):
     return jobs
 
 
+def fetch_recruitee(slug):
+    jobs = []
+    try:
+        r = requests.get(f"https://{slug}.recruitee.com/api/offers/", timeout=15)
+        if r.status_code != 200:
+            return jobs
+        for j in r.json().get("offers", []):
+            title = j.get("title", "")
+            loc = j.get("location", "") or ", ".join(filter(None, [j.get("city", ""), j.get("country", "")]))
+            is_remote = bool(j.get("remote", False))
+            url = j.get("careers_url", "")
+            oid = j.get("id", url)
+            if url and matches_filters(title, loc, is_remote):
+                jobs.append({"id": f"rc:{slug}:{oid}", "company": slug, "title": title, "location": loc or ("Remote" if is_remote else "Unspecified"), "url": url, "ats": "Recruitee"})
+    except Exception:
+        pass
+    return jobs
+
+
+def fetch_teamtailor(slug):
+    jobs = []
+    try:
+        r = requests.get(f"https://{slug}.teamtailor.com/jobs.rss", timeout=15)
+        if r.status_code != 200:
+            return jobs
+        root = ET.fromstring(r.content)
+        for item in root.findall(".//item"):
+            title = (item.findtext("title") or "").strip()
+            url = (item.findtext("link") or "").strip()
+            guid = (item.findtext("guid") or url).strip()
+            loc_parts = []
+            is_remote = False
+            for child in item:
+                tag = child.tag.lower()
+                text = (child.text or "").strip()
+                if tag.endswith("remotestatus") and text.lower() in {"fully", "hybrid", "remote"}:
+                    is_remote = True
+                elif tag.endswith("location") and text:
+                    loc_parts.append(text)
+            loc = ", ".join(loc_parts)
+            if url and matches_filters(title, loc, is_remote):
+                jobs.append({"id": f"tt:{slug}:{guid}", "company": slug, "title": title, "location": loc or ("Remote" if is_remote else "Unspecified"), "url": url, "ats": "Teamtailor"})
+    except Exception:
+        pass
+    return jobs
+
+
+def fetch_pinpoint(slug):
+    jobs = []
+    try:
+        r = requests.get(f"https://{slug}.pinpointhq.com/postings.json", timeout=15)
+        if r.status_code != 200:
+            return jobs
+        for j in r.json().get("data", []):
+            title = j.get("title", "")
+            loc_obj = j.get("location", {}) or {}
+            loc = loc_obj.get("name", "") if isinstance(loc_obj, dict) else ""
+            workplace = (j.get("workplace_type") or "").lower()
+            is_remote = "remote" in workplace or "remote" in loc.lower()
+            url = j.get("url", "")
+            jid = j.get("id", url)
+            if url and matches_filters(title, loc, is_remote):
+                jobs.append({"id": f"pp:{slug}:{jid}", "company": slug, "title": title, "location": loc or ("Remote" if is_remote else "Unspecified"), "url": url, "ats": "Pinpoint"})
+    except Exception:
+        pass
+    return jobs
+
+
+def fetch_breezy(slug):
+    jobs = []
+    try:
+        r = requests.get(f"https://{slug}.breezy.hr/json", timeout=15)
+        if r.status_code != 200:
+            return jobs
+        data = r.json()
+        if not isinstance(data, list):
+            return jobs
+        for j in data:
+            title = j.get("name", "")
+            loc_obj = j.get("location", {}) or {}
+            loc = loc_obj.get("name", "") if isinstance(loc_obj, dict) else ""
+            is_remote = bool(loc_obj.get("is_remote", False)) if isinstance(loc_obj, dict) else False
+            url = j.get("url", "")
+            jid = j.get("id", url)
+            if url and matches_filters(title, loc, is_remote):
+                jobs.append({"id": f"bz:{slug}:{jid}", "company": slug, "title": title, "location": loc or ("Remote" if is_remote else "Unspecified"), "url": url, "ats": "Breezy"})
+    except Exception:
+        pass
+    return jobs
+
+
 def send_telegram(new_jobs):
     chunk = []
     for j in new_jobs:
@@ -152,16 +244,23 @@ def send_email(new_jobs):
 
 
 def main():
-    boards = load_json(BOARDS_FILE, {"workable": [], "smartrecruiters": [], "rippling": []})
+    boards = load_json(BOARDS_FILE, {})
     seen = set(load_json(SEEN_FILE, []))
     found = []
 
-    for slug in boards.get("workable", []):
-        found.extend(fetch_workable(slug))
-    for slug in boards.get("smartrecruiters", []):
-        found.extend(fetch_smartrecruiters(slug))
-    for slug in boards.get("rippling", []):
-        found.extend(fetch_rippling(slug))
+    fetchers = {
+        "workable": fetch_workable,
+        "smartrecruiters": fetch_smartrecruiters,
+        "rippling": fetch_rippling,
+        "recruitee": fetch_recruitee,
+        "teamtailor": fetch_teamtailor,
+        "pinpoint": fetch_pinpoint,
+        "breezy": fetch_breezy,
+    }
+
+    for ats, fn in fetchers.items():
+        for slug in boards.get(ats, []):
+            found.extend(fn(slug))
 
     new_jobs = [j for j in found if j["id"] not in seen]
     print(f"Total matched: {len(found)} | New: {len(new_jobs)}")
