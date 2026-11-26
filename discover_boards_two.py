@@ -13,22 +13,39 @@ QUERIES = [
     ("smartrecruiters", 'site:jobs.smartrecruiters.com ("Full Stack" OR "Backend" OR "Python") ("Bengaluru" OR "Hyderabad" OR "Remote")'),
     ("rippling", 'site:ats.rippling.com ("AI Engineer" OR "Software Engineer" OR "Founding Engineer")'),
     ("rippling", 'site:ats.rippling.com ("Full Stack" OR "Backend" OR "Product Engineer") ("Remote" OR "India")'),
+    ("recruitee", 'site:recruitee.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
+    ("recruitee", 'site:recruitee.com ("Backend" OR "Python" OR "Machine Learning") ("Remote" OR "APAC")'),
+    ("teamtailor", 'site:teamtailor.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
+    ("teamtailor", 'site:teamtailor.com ("Backend" OR "Product Engineer" OR "Python") ("Remote" OR "Global")'),
+    ("pinpoint", 'site:pinpointhq.com ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
+    ("breezy", 'site:breezy.hr ("AI Engineer" OR "Software Engineer" OR "Full Stack") ("Remote" OR "India")'),
 ]
 
 PATTERNS = {
     "workable": re.compile(r"apply\.workable\.com/([a-zA-Z0-9_-]+)"),
     "smartrecruiters": re.compile(r"jobs\.smartrecruiters\.com/([a-zA-Z0-9_-]+)"),
     "rippling": re.compile(r"ats\.rippling\.com/([a-zA-Z0-9_-]+)"),
+    "recruitee": re.compile(r"https?://([a-zA-Z0-9_-]+)\.recruitee\.com"),
+    "teamtailor": re.compile(r"https?://([a-zA-Z0-9_-]+)\.teamtailor\.com"),
+    "pinpoint": re.compile(r"https?://([a-zA-Z0-9_-]+)\.pinpointhq\.com"),
+    "breezy": re.compile(r"https?://([a-zA-Z0-9_-]+)\.breezy\.hr"),
 }
 
-IGNORE_SLUGS = {"jobs", "api", "j", "en-us", "careers", "search", "apply"}
+IGNORE_SLUGS = {
+    "jobs", "api", "j", "en-us", "careers", "search", "apply",
+    "www", "app", "docs", "support", "help", "blog", "career",
+}
 
 
 def load_boards():
+    default = {k: [] for k in PATTERNS}
     if os.path.exists(BOARDS_FILE):
         with open(BOARDS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"workable": [], "smartrecruiters": [], "rippling": []}
+            data = json.load(f)
+            for k in default:
+                data.setdefault(k, [])
+            return data
+    return default
 
 
 def discover():
