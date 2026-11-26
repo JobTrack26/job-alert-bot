@@ -21,8 +21,7 @@ jobs:
         env:
           BOT_TOKEN_TWO: ${{ secrets.BOT_TOKEN_TWO }}
           CHAT_ID_TWO: ${{ secrets.CHAT_ID_TWO }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
       - run: |
           if [ -f seen_jobs_two.json ]; then
             git config user.name "github-actions[bot]"
