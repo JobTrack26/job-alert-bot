@@ -1,0 +1,31 @@
+name: Job Alert Bot Two
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - run: python jobs_bot_two.py
+        env:
+          BOT_TOKEN_TWO: ${{ secrets.BOT_TOKEN_TWO }}
+          CHAT_ID_TWO: ${{ secrets.CHAT_ID_TWO }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add seen_jobs_two.json
+          git diff --staged --quiet || git commit -m "Update seen_jobs_two.json"
+          git push
