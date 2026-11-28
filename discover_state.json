@@ -1,10 +1,10 @@
 {
   "pages": {
-    "site:jobs.ashbyhq.com (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 10,
-    "site:jobs.ashbyhq.com (\"LLM\" OR \"AI Agents\" OR \"Full Stack\") (\"Python\" OR \"TypeScript\")": 10,
-    "(site:boards.greenhouse.io OR site:job-boards.greenhouse.io) (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 10,
-    "(site:boards.greenhouse.io OR site:job-boards.greenhouse.io) (\"Backend\" OR \"Platform Engineer\") (\"Python\" OR \"TypeScript\") (\"India\" OR \"Remote\")": 10,
-    "site:jobs.lever.co (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 10,
-    "site:jobs.lever.co (\"Full Stack\" OR \"Backend Engineer\") (\"Python\" OR \"TypeScript\") (\"India\" OR \"Remote\")": 10
+    "site:jobs.ashbyhq.com (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 11,
+    "site:jobs.ashbyhq.com (\"LLM\" OR \"AI Agents\" OR \"Full Stack\") (\"Python\" OR \"TypeScript\")": 11,
+    "(site:boards.greenhouse.io OR site:job-boards.greenhouse.io) (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 11,
+    "(site:boards.greenhouse.io OR site:job-boards.greenhouse.io) (\"Backend\" OR \"Platform Engineer\") (\"Python\" OR \"TypeScript\") (\"India\" OR \"Remote\")": 11,
+    "site:jobs.lever.co (\"AI Engineer\" OR \"Founding Engineer\") (\"India\" OR \"Bengaluru\" OR \"Remote\")": 11,
+    "site:jobs.lever.co (\"Full Stack\" OR \"Backend Engineer\") (\"Python\" OR \"TypeScript\") (\"India\" OR \"Remote\")": 11
   }
 }
